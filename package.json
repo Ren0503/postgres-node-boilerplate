@@ -16,6 +16,7 @@
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.4",
+    "redis": "^3.1.2",
     "sequelize": "^6.9.0"
   },
   "devDependencies": {

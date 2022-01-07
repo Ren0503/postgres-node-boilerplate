@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const { Todo, User } = require('../sequelize');
+const cache = require('../middleware/cacheMiddleware');
 
 exports.createTodo = asyncHandler(async (req, res, next) => {
     const todo = await Todo.create({
@@ -11,6 +12,13 @@ exports.createTodo = asyncHandler(async (req, res, next) => {
 });
 
 exports.getAllTodo = asyncHandler(async (req, res, next) => {
+    const cachedKey = 'todos';
+    const cachedData = await cache.get(cachedKey);
+
+    if (cachedData) {
+        return res.status(200).json({ success: true, data: cachedData });
+    }
+
     const todos = await Todo.findAll({
         attributes: [
             "id",
@@ -18,8 +26,9 @@ exports.getAllTodo = asyncHandler(async (req, res, next) => {
             "description",
         ],
     });
+    await cache.save(cachedKey, todos, 300);
 
-    res.status(200).json({ success: true, data: todos });
+    return res.status(200).json({ success: true, data: todos });
 });
 
 exports.getTodoById = asyncHandler(async (req, res, next) => {
